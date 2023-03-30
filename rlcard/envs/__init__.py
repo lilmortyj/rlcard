@@ -29,6 +29,11 @@ register(
 )
 
 register(
+    env_id='bigleduc-holdem',
+    entry_point='rlcard.envs.bigleducholdem:BigleducholdemEnv'
+)
+
+register(
     env_id='uno',
     entry_point='rlcard.envs.uno:UnoEnv',
 )

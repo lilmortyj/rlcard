@@ -18,16 +18,16 @@ from rlcard.utils import (
 def train(args):
     # Make environments, CFR only supports Leduc Holdem
     env = rlcard.make(
-        'leduc-holdem',
+        'bigleduc-holdem',
         config={
-            'seed': 0,
+            'seed': args.seed,
             'allow_step_back': True,
         }
     )
     eval_env = rlcard.make(
-        'leduc-holdem',
+        'bigleduc-holdem',
         config={
-            'seed': 0,
+            'seed': args.seed,
         }
     )
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--num_episodes',
         type=int,
-        default=5000,
+        default=500000,
     )
     parser.add_argument(
         '--num_eval_games',
@@ -91,12 +91,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--evaluate_every',
         type=int,
-        default=100,
+        default=1000,
     )
     parser.add_argument(
         '--log_dir',
         type=str,
-        default='experiments/leduc_holdem_cfr_result/',
+        default='experiments/bigleduc_holdem_cfr_result/',
     )
 
     args = parser.parse_args()
