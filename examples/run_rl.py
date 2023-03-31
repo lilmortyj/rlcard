@@ -100,10 +100,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--env',
         type=str,
-        default='leduc-holdem',
+        default='bigleduc-holdem',
         choices=[
             'blackjack',
             'leduc-holdem',
+            'bigleduc-holdem',
             'limit-holdem',
             'doudizhu',
             'mahjong',
@@ -116,7 +117,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--algorithm',
         type=str,
-        default='dqn',
+        # default='dqn',
+        default='nfsp',
         choices=[
             'dqn',
             'nfsp',
@@ -125,7 +127,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--cuda',
         type=str,
-        default='',
+        default='3',
     )
     parser.add_argument(
         '--seed',
@@ -135,7 +137,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--num_episodes',
         type=int,
-        default=5000,
+        default=10000,
     )
     parser.add_argument(
         '--num_eval_games',
@@ -150,7 +152,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--log_dir',
         type=str,
-        default='experiments/leduc_holdem_dqn_result/',
+        # default='experiments/bigleduc_holdem_dqn_result/',
+        default='experiments/bigleduc_holdem_nfsp_result/',
     )
 
     args = parser.parse_args()

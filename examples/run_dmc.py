@@ -34,10 +34,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--env',
         type=str,
-        default='leduc-holdem',
+        default='bigleduc-holdem',
         choices=[
             'blackjack',
             'leduc-holdem',
+            'bigleduc-holdem',
             'limit-holdem',
             'doudizhu',
             'mahjong',
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--cuda',
         type=str,
-        default='',
+        default='0',
     )
     parser.add_argument(
         '--load_model',
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--xpid',
-        default='leduc_holdem',
+        default='bigleduc_holdem',
         help='Experiment id (default: leduc_holdem)',
     )
     parser.add_argument(

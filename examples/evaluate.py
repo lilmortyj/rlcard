@@ -7,6 +7,7 @@ import rlcard
 from rlcard.agents import (
     DQNAgent,
     RandomAgent,
+    CFRAgent,
 )
 from rlcard.utils import (
     get_device,
@@ -59,10 +60,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--env',
         type=str,
-        default='leduc-holdem',
+        default='bigleduc-holdem',
         choices=[
             'blackjack',
             'leduc-holdem',
+            'bigleduc-holdem',
             'limit-holdem',
             'doudizhu',
             'mahjong',
@@ -75,14 +77,15 @@ if __name__ == '__main__':
         '--models',
         nargs='*',
         default=[
-            'experiments/leduc_holdem_dqn_result/model.pth',
-            'random',
+            'experiments/bigleduc_holdem_cfr_result/cfr_model',
+            # 'experiments/bigleduc_holdem_dqn_result/model.pth',
+            'experiments/bigleduc_holdem_nfsp_result/model.pth',
         ],
     )
     parser.add_argument(
         '--cuda',
         type=str,
-        default='',
+        default='0',
     )
     parser.add_argument(
         '--seed',
