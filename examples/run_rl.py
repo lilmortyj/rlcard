@@ -6,6 +6,7 @@ import argparse
 import torch
 
 import rlcard
+from rlcard import models
 from rlcard.agents import RandomAgent
 from rlcard.utils import (
     get_device,
@@ -53,58 +54,62 @@ def train(args):
                 device=device,
             )
         agents.append(agent)
-        
+    
+    if not args.selfplay:
+        assert args.opponent != None
+        agents.pop()
+        agent = models.load(args.opponent).agents[1]
+        agents.append(agent)
     env.set_agents(agents)
 
-    loggers = [Logger(os.path.join(args.log_dir, str(k))) for k in range(env.num_players)]
-    for i in range(env.num_players):
-        loggers[i] = loggers[i].__enter__()
-    
     # Start training
-    for episode in range(args.num_episodes):
+    with Logger(args.log_dir) as logger:
+        for episode in range(args.num_episodes):
 
-        if args.algorithm == 'nfsp':
-            for agent_ in agents:
-                agent_.sample_episode_policy()
+            if args.algorithm == 'nfsp':
+                if args.selfplay:
+                    for agent_ in agents:
+                        agent_.sample_episode_policy()
+                else:
+                    agents[0].sample_episode_policy()
 
-        # Generate data from the environment
-        trajectories, payoffs = env.run(is_training=True)
+            # Generate data from the environment
+            trajectories, payoffs = env.run(is_training=True)
 
-        # Reorganaize the data to be state, action, reward, next_state, done
-        trajectories = reorganize(trajectories, payoffs)
+            # Reorganaize the data to be state, action, reward, next_state, done
+            trajectories = reorganize(trajectories, payoffs)
 
-        # Feed transitions into agent memory, and train the agent
-        # Here, we assume that DQN always plays the first position
-        # and the other players play randomly (if any)
-        for i in range(env.num_players):
-            for ts in trajectories[i]:
-                agents[i].feed(ts)
+            # Feed transitions into agent memory, and train the agent
+            # Here, we assume that DQN always plays the first position
+            # and the other players play randomly (if any)
+            if args.selfplay:
+                for i in range(env.num_players):
+                    for ts in trajectories[i]:
+                        agents[i].feed(ts)
+            else:
+                for ts in trajectories[0]:
+                    agents[0].feed(ts)
 
-        # Evaluate the performance. Play with random agents.
-        if episode % args.evaluate_every == 0:
-            result = tournament(
-                env,
-                args.num_eval_games,
-            )
-            for i in range(env.num_players):
-                loggers[i].log_performance(
+            # Evaluate the performance. Play with random agents.
+            if episode % args.evaluate_every == 0:
+                logger.log_performance(
                     episode,
-                    result[i]
+                    tournament(
+                        env,
+                        args.num_eval_games,
+                    )
                 )
-
+    # Get the paths
+    csv_path, fig_path = logger.csv_path, logger.fig_path
+    # Plot the learning curve
+    plot_curve(csv_path, fig_path, args.algorithm)
+    
     for i in range(env.num_players):
-        loggers[i].__exit__(None, None, None)
-        
-        # Get the paths
-        csv_path, fig_path = loggers[i].csv_path, loggers[i].fig_path
-
-        # Plot the learning curve
-        plot_curve(csv_path, fig_path, args.algorithm)
-
         # Save model
-        save_path = os.path.join(os.path.join(args.log_dir, str(i)), 'model.pth')
+        save_path = os.path.join(args.log_dir, f'{i}_model.pth')
         torch.save(agents[i], save_path)
         print('Model saved in', save_path)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("DQN/NFSP example in RLCard")
@@ -128,12 +133,30 @@ if __name__ == '__main__':
     parser.add_argument(
         '--algorithm',
         type=str,
-        # default='dqn',
-        default='nfsp',
+        default='dqn',
+        # default='nfsp',
         choices=[
             'dqn',
             'nfsp',
         ],
+    )
+    parser.add_argument(
+        '--selfplay',
+        type=bool,
+        default=False,
+    )
+    parser.add_argument(
+        '--opponent',
+        type=str,
+        default="bigleduc-holdem-rule-v1",
+        choices=[
+            "bigleduc-holdem-rule-v1",
+            "bigleduc-holdem-rule-v2",
+            "bigleduc-holdem-rule-v3",
+            "bigleduc-holdem-rule-v4",
+            "bigleduc-holdem-rule-v5",
+            "bigleduc-holdem-rule-v6",
+        ]
     )
     parser.add_argument(
         '--cuda',
@@ -148,7 +171,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--num_episodes',
         type=int,
-        default=500000,
+        default=100000,
     )
     parser.add_argument(
         '--num_eval_games',
@@ -164,7 +187,13 @@ if __name__ == '__main__':
         '--log_dir',
         type=str,
         # default='experiments/bigleduc_holdem_dqn_result/',
-        default='experiments/bigleduc_holdem_nfsp_result/',
+        # default='experiments/bigleduc_holdem_nfsp_result/',
+        default='experiments/bigleduc_holdem_dqn_vs_rulev1/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev2/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev3/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev4/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev5/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev6/',
     )
 
     args = parser.parse_args()
