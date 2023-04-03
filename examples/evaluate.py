@@ -77,15 +77,19 @@ if __name__ == '__main__':
         '--models',
         nargs='*',
         default=[
-            'experiments/bigleduc_holdem_cfr_result/cfr_model',
-            # 'experiments/bigleduc_holdem_dqn_result/model.pth',
-            'experiments/bigleduc_holdem_nfsp_result/model.pth',
+            'data/bigleduc_holdem_cfr_result/cfr_model',  # * 0.0
+            # 'data/bigleduc_holdem_dqn_result/0/model.pth',  # * -0.16025
+            # 'data/bigleduc_holdem_dqn_result/1/model.pth',  # * -0.0853
+            # 'data/bigleduc_holdem_nfsp_result/0/model.pth',  # * -0.85425
+            # 'data/bigleduc_holdem_nfsp_result/1/model.pth',  # * -0.81675
+            # 'data/bigleduc_holdem_dmc_result/0_164284800.pth',  # * 0.0579
+            'data/bigleduc_holdem_dmc_result/1_164284800.pth',  # * -0.06625
         ],
     )
     parser.add_argument(
         '--cuda',
         type=str,
-        default='0',
+        default='3',
     )
     parser.add_argument(
         '--seed',
