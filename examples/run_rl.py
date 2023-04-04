@@ -97,17 +97,23 @@ def train(args):
                     tournament(
                         env,
                         args.num_eval_games,
-                    )
+                    )[0]
                 )
     # Get the paths
     csv_path, fig_path = logger.csv_path, logger.fig_path
     # Plot the learning curve
     plot_curve(csv_path, fig_path, args.algorithm)
     
-    for i in range(env.num_players):
+    if args.selfplay:
+        for i in range(env.num_players):
+            # Save model
+            save_path = os.path.join(args.log_dir, f'{i}_model.pth')
+            torch.save(agents[i], save_path)
+            print('Model saved in', save_path)
+    else:
         # Save model
-        save_path = os.path.join(args.log_dir, f'{i}_model.pth')
-        torch.save(agents[i], save_path)
+        save_path = os.path.join(args.log_dir, 'model.pth')
+        torch.save(agents[0], save_path)
         print('Model saved in', save_path)
 
 
@@ -148,15 +154,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--opponent',
         type=str,
-        default="bigleduc-holdem-rule-v1",
-        choices=[
-            "bigleduc-holdem-rule-v1",
-            "bigleduc-holdem-rule-v2",
-            "bigleduc-holdem-rule-v3",
-            "bigleduc-holdem-rule-v4",
-            "bigleduc-holdem-rule-v5",
-            "bigleduc-holdem-rule-v6",
-        ]
+        # default="bigleduc-holdem-rule-v1",
+        # default="bigleduc-holdem-rule-v2",
+        # default="bigleduc-holdem-rule-v3",
+        # default="bigleduc-holdem-rule-v4",
+        # default="bigleduc-holdem-rule-v5",
+        default="bigleduc-holdem-rule-v6",
     )
     parser.add_argument(
         '--cuda',
@@ -188,12 +191,12 @@ if __name__ == '__main__':
         type=str,
         # default='experiments/bigleduc_holdem_dqn_result/',
         # default='experiments/bigleduc_holdem_nfsp_result/',
-        default='experiments/bigleduc_holdem_dqn_vs_rulev1/',
+        # default='experiments/bigleduc_holdem_dqn_vs_rulev1/',
         # default='experiments/bigleduc_holdem_dqn_vs_rulev2/',
         # default='experiments/bigleduc_holdem_dqn_vs_rulev3/',
         # default='experiments/bigleduc_holdem_dqn_vs_rulev4/',
         # default='experiments/bigleduc_holdem_dqn_vs_rulev5/',
-        # default='experiments/bigleduc_holdem_dqn_vs_rulev6/',
+        default='experiments/bigleduc_holdem_dqn_vs_rulev6/',
     )
 
     args = parser.parse_args()
